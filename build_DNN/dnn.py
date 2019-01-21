@@ -33,6 +33,9 @@ class DNN():
 	def activate_backward(self):
 		pass
 
+	def update_parameters(self):
+		pass
+
 	def backward_propogation(self):
 		pass
 
