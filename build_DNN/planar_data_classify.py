@@ -93,6 +93,8 @@ class NN():
 				 'A2': A2,
 				 'dA_dZ2': dA_dZ2}
 
+		# print('A1:', A1, '\nA2:', A2)
+
 		return A2, cache
 
 	def calculate_cost(self, A2, y, parameters, lamda):
@@ -101,8 +103,12 @@ class NN():
 		W1 = parameters['W1']
 		W2 = parameters['W2']
 
-		logprobs = np.multiply(y, np.log(A2 + 10e-4)) + np.multiply((1 - y), np.log(1 - A2 + 10e-4))
-		cost = - np.sum(logprobs) / m\
+		# print(A2)
+
+		# logprobs = np.multiply(y, np.log(A2 + 10e-8)) + np.multiply((1 - y), np.log(1 - A2))
+		logprobs = np.power(A2 - y, 2)
+		# print(logprobs)
+		cost = np.sum(logprobs) / m\
 			   + lamda / (2 * m) *\
 			   (np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2)))
 		cost = np.squeeze(cost)
@@ -118,13 +124,15 @@ class NN():
 		dA_dZ2 = cache['dA_dZ2']
 
 		if 'sigmod' == self.output_type:
-			dZ2 = A2 - y
+			dZ2 = (A2 - y) / m
 		else:
-			dZ2 = np.multiply((A2 - y) / (np.multiply(A2, 1 - A2) + 10e-8), dA_dZ2)
+			dZ2 = np.multiply(2 * (A2 - y), dA_dZ2) / m
 
-		dW2 = np.dot(dZ2, A1.T) / m
-		db2 = np.sum(dZ2, axis = 1, keepdims = True) / m 
-		dA1 = np.dot(W2.T, dZ2) / m 
+		# print(dZ2)
+
+		dW2 = np.dot(dZ2, A1.T)
+		db2 = np.sum(dZ2, axis = 1, keepdims = True)
+		dA1 = np.dot(W2.T, dZ2)
 		dZ1 = np.multiply(dA1, dA_dZ1)
 		dW1 = np.dot(dZ1, X.T)
 		db1 = np.sum(dZ1, axis = 1, keepdims = True)
@@ -133,10 +141,10 @@ class NN():
 				 'db1': db1,
 				 'dW2': dW2,
 				 'db2': db2}
-
+		# print(dW2)
 		return grads 
 
-	def update_parameters(self, parameters, grads, learning_rate = 0.1, lamda = 0):
+	def update_parameters(self, parameters, grads, learning_rate = 0.001, lamda = 0):
 		W1 = parameters['W1']
 		b1 = parameters['b1']
 		W2 = parameters['W2']
@@ -151,6 +159,7 @@ class NN():
 		b1 = b1 - learning_rate * db1
 		W2 = W2 - learning_rate * (dW2 + 1 / self.m * lamda * W2)
 		b2 = b2 - learning_rate * db2 
+		# print(dW2 * learning_rate)
 
 		parameters = {'W1': W1,
 					  'b1': b1,
@@ -184,8 +193,9 @@ class NN():
 
 
 if __name__ == '__main__':
-	nn = NN(20, 'tanh', 'sigmod')
-	parameters = nn.training_model(X, y, 15000, 0.1, 1.2, True)
+
+	nn = NN(20, 'tanh', 'tanh')
+	parameters = nn.training_model(X, y, 1500, 0.1, 0.1, True)
 	prediction = nn.predict(parameters, X)
 
 	plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
