@@ -28,7 +28,7 @@ def plot_decision_boundary(model, X, y):
 	plt.ylabel("feature2")
 	plt.scatter(X[0, :], X[1, :], c = y[0],
 				linewidth = 1, edgecolors = (0, 0, 0), 
-				cmap = plt.cm.Spectral, alpha = 0.5)
+				cmap = plt.cm.Spectral, alpha = 0.8)
 	plt.show()
 
 
@@ -126,7 +126,7 @@ class NN():
 		if 'sigmod' == self.output_type:
 			dZ2 = (A2 - y) / m
 		else:
-			dZ2 = np.multiply(2 * (A2 - y), dA_dZ2) / m
+			dZ2 = np.multiply((A2 - y), dA_dZ2) / m
 
 		# print(dZ2)
 
@@ -194,8 +194,8 @@ class NN():
 
 if __name__ == '__main__':
 
-	nn = NN(20, 'tanh', 'sigmod')
-	parameters = nn.training_model(X, y, 1500, 0.1, 1.2, True)
+	nn = NN(20, 'tanh', 'relu')
+	parameters = nn.training_model(X, y, 1500, 0.1, 0.5, True)
 
 	prediction = nn.predict(parameters, X)
 

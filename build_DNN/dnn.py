@@ -93,17 +93,18 @@ class DNN():
 	def calculate_cost(self, A, y, activation_type):
 		assert(A.shape[1] == y.shape[1])
 		if 'sigmod' == activation_type:
-			# log_prop = np.dot(y, np.log(A).T) + np.dot(1 - y, np.log(1 - A).T) / self.m
-			log_prop = np.sum(np.multiply(y, np.log(A)) + np.multiply(1 - y, np.log(1 - A)))
+			log_prop = np.dot(y, np.log(A).T) + np.dot(1 - y, np.log(1 - A).T)
+			# log_prop = np.sum(np.multiply(y, np.log(A)) + np.multiply(1 - y, np.log(1 - A)))
 			cost = -np.squeeze(log_prop) / self.m
 		else:
 			cost = np.sum(np.power(A - y, 2)) / (2 * self.m)
+
 		return cost 
 
 	def linear_backward(self, dZ, A_prev, W):
 		assert(A_prev.shape[0] == W.shape[1])
 		dA_prev = np.dot(W.T, dZ)
-		dW = np.dot(dZ, dA_prev.T)
+		dW = np.dot(dZ, A_prev.T)
 		db = np.sum(dZ, axis = 1, keepdims = True)
 
 		return dA_prev, dW, db
@@ -161,9 +162,9 @@ class DNN():
 		return grads
 
 	def model_training(self, X, y,
-					   num_iterations = 1000, 
-					   learning_rate = 0.01, 
-					   lamda = 0.1,
+					   num_iterations = 10000, 
+					   learning_rate = 0.1, 
+					   lamda = 0.01,
 					   print_cost = False):
 		"""
 		training struct for every iterations: 
@@ -188,7 +189,7 @@ class DNN():
 	def predict(self, parameters, X):
 		num_layers = int(len(parameters) / 2)
 		A, forward_cache = self.forward_propogation(X, parameters)
-		prediction = np.where(A >= 0.5, 1, 0)
+		prediction = np.where(A >=0.5, 1, 0)
 		return prediction
 
 
@@ -198,20 +199,19 @@ def plot_decision_boundary(model, X, y):
 	h = 0.01
 	xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
 	Z = model(np.c_[xx.ravel(), yy.ravel()].T)
-	# print((np.c_[xx.ravel(), yy.ravel()])).shape
 	Z = Z.reshape(xx.shape)
 	plt.contourf(xx, yy, Z, cmap = plt.cm.Spectral)
 	plt.xlabel("feature1")
 	plt.ylabel("feature2")
 	plt.scatter(X[0, :], X[1, :], c = y[0],
 				linewidth = 1, edgecolors = (0, 0, 0), 
-				cmap = plt.cm.Spectral, alpha = 0.5)
+				cmap = plt.cm.Spectral, alpha = 0.8)
 	plt.show()
 
 if __name__ == '__main__':
 	from planar_utils import load_planar_dataset
 	X, y = load_planar_dataset()
-	nn = DNN(2, ['relu', 'sigmod'], [20, 1])
+	nn = DNN(3, ['relu','relu', 'relu'], [20, 10, 1])
 	parameters = nn.model_training(X, y, print_cost = True)
 
 	plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
