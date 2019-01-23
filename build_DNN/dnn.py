@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import h5py
 import numpy as np 
 import matplotlib.pyplot as plt 
 
@@ -162,7 +161,7 @@ class DNN():
 		return grads
 
 	def model_training(self, X, y,
-					   num_iterations = 10000, 
+					   num_iterations = 15000, 
 					   learning_rate = 0.1, 
 					   lamda = 0.01,
 					   print_cost = False):
@@ -211,7 +210,7 @@ def plot_decision_boundary(model, X, y):
 if __name__ == '__main__':
 	from planar_utils import load_planar_dataset
 	X, y = load_planar_dataset()
-	nn = DNN(3, ['relu','relu', 'relu'], [20, 10, 1])
+	nn = DNN(4, ['relu','relu', 'relu', 'sigmod'], [50, 20, 10, 1])
 	parameters = nn.model_training(X, y, print_cost = True)
 
 	plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
