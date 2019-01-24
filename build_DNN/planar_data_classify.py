@@ -194,10 +194,10 @@ class NN():
 
 if __name__ == '__main__':
 
-	nn = NN(20, 'tanh', 'relu')
+	nn = NN(50, 'tanh', 'sigmod')
 	parameters = nn.training_model(X, y, 1500, 0.1, 0.5, True)
 
 	prediction = nn.predict(parameters, X)
 
 	plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
-	show_planar_data(X, y)
+	# show_planar_data(X, y)
