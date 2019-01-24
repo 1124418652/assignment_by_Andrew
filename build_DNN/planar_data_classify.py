@@ -48,9 +48,9 @@ class NN():
 
 	def initialize_parameters(self):
 		np.random.seed(2)  # 基于种子产生随机数，从而保证每次的结果一致
-		W1 = np.random.randn(self.n_hidden, self.n_input) / self.m 
+		W1 = np.random.randn(self.n_hidden, self.n_input) * 0.01#/ self.m 
 		b1 = np.zeros((self.n_hidden, 1))
-		W2 = np.random.randn(self.n_output, self.n_hidden) / self.m 
+		W2 = np.random.randn(self.n_output, self.n_hidden) * 0.01# / self.m 
 		b2 = np.zeros((self.n_output, 1))
 
 		parameters = {"W1": W1,
@@ -195,7 +195,7 @@ class NN():
 if __name__ == '__main__':
 
 	nn = NN(50, 'tanh', 'sigmod')
-	parameters = nn.training_model(X, y, 1500, 0.1, 0.5, True)
+	parameters = nn.training_model(X, y, 10000, 0, 1.2, True)
 
 	prediction = nn.predict(parameters, X)
 

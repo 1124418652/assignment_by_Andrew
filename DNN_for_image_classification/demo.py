@@ -87,10 +87,37 @@ if __name__ == '__main__':
 	# show_image(train_set)
 	# print(train_label.reshape((209,1)).T.shape)
 	# nn = NN()
-	# nn.model_training(train_set.reshape((209, -1)).T / 255 ,\
-	# 				  train_label.reshape((209, 1)).T, 10, 0.1)
+	# parameters = nn.model_training(train_set.reshape((209, -1)).T / 255,\
+	# 				  train_label.reshape((209, 1)).T, 50, 0.01, 5000)
 
-	X, y = load_planar_dataset()
+	# if not os.path.exists('parameters.h5'):
+	# 	with h5py.File('parameters.h5') as f:
+	# 		f['W1'] = parameters['W1']
+	# 		f['b1'] = parameters['b1']
+	# 		f['W2'] = parameters['W2']
+	# 		f['b2'] = parameters['b2']
+
+	# X, y = load_planar_dataset()
+	# nn = NN()
+	# parameters = nn.model_training(X, y, 50, 0.5, 10000)
+	# plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
+
+	X = train_set
+	
+	with h5py.File("parameters.h5") as fr:
+		W1 = np.array(fr['W1'])
+		b1 = np.array(fr['b1'])
+		W2 = np.array(fr['W2'])
+		b2 = np.array(fr['b2'])
+
+	parameters = {'W1': W1, 
+				  'b1': b1,
+				  'W2': W2, 
+				  'b2': b2}
+
 	nn = NN()
-	parameters = nn.model_training(X, y, 20, 0.5, 10000)
-	plot_decision_boundary(lambda x: nn.predict(parameters, x), X, y)
+	predict = np.squeeze(nn.predict(parameters, X.reshape((X.shape[0], -1)).T / 255))
+	print(predict)
+	error_rate = np.abs(predict - train_label).sum() / len(predict)
+	print("error_rate is : ", error_rate)
+	show_image(X, 5, 6)
