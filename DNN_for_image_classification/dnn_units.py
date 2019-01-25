@@ -107,9 +107,9 @@ class NN():
 			grads = self.backward_propogation(parameters, cache, X, y)
 			parameters = self.update_parameters(parameters, grads, learning_rate)
 
-			if print_cost and 0 == i % 10:
+			if print_cost and 0 == i % 100:
 				print("cost after iterated of %d : %f" %(i, cost))
-			costs.append(cost)
+				costs.append(cost)
 		return parameters, costs
 
 	def predict(self, parameters, X):
@@ -301,10 +301,10 @@ class DNN():
 			grads = self.L_model_backward(y, parameters, caches, activation_list)
 			parameters = self.update_parameters(parameters, grads, learning_rate)
 
-			if print_cost and 0 == i % 10:
+			if print_cost and 0 == i % 100:
 				print("Cost after iterations of %d : %f" %(i, cost))
 
-			costs.append(cost)
+				costs.append(cost)
 
 		return parameters, costs
 
@@ -315,3 +315,73 @@ class DNN():
 		prediction = np.where(A >= 0.5, 1, 0)
 		return prediction
 
+
+class Improve_DNN(DNN):
+
+	def initialize_parameters_zeros(self, layer_dims):
+
+		layer_num = len(layer_dims) - 1
+		parameters = {}
+
+		for l in range(1, layer_num + 1):
+			parameters['W' + str(l)] = np.zeros((layer_dims[l], layer_dims[l - 1]))
+			parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+
+		return parameters
+
+	def initalize_parameters_random(self, layer_dims):
+
+		layer_num = len(layer_dims) - 1
+		parameters = {}
+		np.random.seed(3)
+
+		for l in range(1, layer_num + 1):
+			parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 10 
+			parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+
+		return parameters
+
+	def initialize_parameters_he(self, layer_dims):
+
+		layer_num = len(layer_dims) - 1
+		parameters = {}
+		np.random.seed(3)
+
+		for l in range(1, layer_num + 1):
+			parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1])\
+									   * np.sqrt(2. / layer_dims[l - 1])
+			parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+
+		return parameters
+
+	def model_training(self, X, y, layer_dims, activation_list = None, 
+					   iteration = 100, init_type = 'he', learning_rate = 0.01, 
+					   print_cost = True):
+
+		feature_num, m = X.shape
+		assert(X.shape[1] == y.shape[1])
+		assert(X.shape[0] == layer_dims[0])
+
+		if not activation_list:
+			activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
+
+		if 'zeros' == init_type:
+			parameters = self.initialize_parameters_zeros(layer_dims)
+		elif 'random' == init_type:
+			parameters = self.initalize_parameters_random(layer_dims)
+		elif 'he' == init_type:
+			parameters = self.initialize_parameters_he(layer_dims)
+
+		costs = []
+		for i in range(iteration):
+			A, caches = self.L_model_forward(X, parameters, activation_list)
+			cost = self.compute_cost(A, y)
+			grads = self.L_model_backward(y, parameters, caches, activation_list)
+			parameters = self.update_parameters(parameters, grads, learning_rate)
+
+			if print_cost and 0 == i % 100:
+				print("Cost after iterations of %d : %f" %(i, cost))
+
+				costs.append(cost)
+
+		return parameters, costs

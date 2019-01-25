@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt 
 from PIL import Image 
-from dnn_units import NN, DNN
+from dnn_units import NN, DNN, Improve_DNN
 import matplotlib.pyplot as plt
 
 def load_planar_dataset():
@@ -92,32 +92,48 @@ def demo1():
 	show_image(X, 5, 6)
 
 def demo2():
-	training_path = 'datasets/train_catvnoncat.h5'
-	testing_path = 'datasets/test_catvnoncat.h5'
-	train_set, train_label = load_data(training_path)
-	test_set, test_label = load_data(testing_path, 'testing')
+	# training_path = 'datasets/train_catvnoncat.h5'
+	# testing_path = 'datasets/test_catvnoncat.h5'
+	# train_set, train_label = load_data(training_path)
+	# test_set, test_label = load_data(testing_path, 'testing')
 
-	train_set = np.array(train_set)
-	test_set = np.array(test_set)
-	train_label = np.array(train_label)
-	test_label = np.array(test_label)
-	X = train_set.reshape((209, -1)).T / 255
-	y = train_label.reshape((209, 1)).T
+	# train_set = np.array(train_set)
+	# test_set = np.array(test_set)
+	# train_label = np.array(train_label)
+	# test_label = np.array(test_label)
+	# X = train_set.reshape((209, -1)).T / 255
+	# y = train_label.reshape((209, 1)).T
 
 	
 	dnn = DNN()
-	layer_dims = [X.shape[0], 40, 20, 1]
-	activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
-	# X, y = load_planar_dataset()
-	# parameters = dnn.model_training(X, y, layer_dims, activation_list = activation_list, 
-	# 								iteration = 10000, learning_rate = 0.015)
-	# plot_decision_boundary(lambda x: dnn.predict(x, parameters, activation_list), X, y)
+	X, y = load_planar_dataset()
+	layer_dims = [X.shape[0], 20, 1]
+	activation_list = ['tanh'] * (len(layer_dims) - 2) + ['sigmod']
 	
-	parameters, costs = dnn.model_training(X, y, layer_dims,\
-		activation_list, 2500, 0.05)
+	
+	parameters, costs = dnn.model_training(X, y, layer_dims, activation_list = activation_list, 
+									iteration = 2500, learning_rate = 0.1)
+	plot_decision_boundary(lambda x: dnn.predict(x, parameters, activation_list), X, y)
+	
+	# parameters, costs = dnn.model_training(X, y, layer_dims,\
+	# 	activation_list, 3000, 0.0075)
 
 	plt.plot(costs)
 	plt.show()
+
+def demo3():
+	X, y = load_planar_dataset()
+	layer_dims = [X.shape[0], 20, 1]
+	activation_list = ['tanh'] * (len(layer_dims) - 2) + ['sigmod']
+
+	dnn = Improve_DNN()
+	parameters, costs = dnn.model_training(X, y, layer_dims, activation_list = activation_list, 
+									iteration = 2500, learning_rate = 0.01, init_type = 'he')
+	plot_decision_boundary(lambda x: dnn.predict(x, parameters, activation_list), X, y)
+
+	plt.plot(costs)
+	plt.show()
+
 
 if __name__ == '__main__':
 
@@ -132,14 +148,14 @@ if __name__ == '__main__':
 	test_label = np.array(test_label)
 
 	
-	# demo2()
+	demo3()
 	# show_image(train_set)
 	# print(train_label.reshape((209,1)).T.shape)
-	nn = NN()
-	parameters, costs = nn.model_training(train_set.reshape((209, -1)).T / 255,\
-					  train_label.reshape((209, 1)).T, 50, 0.01, 2000)
-	plt.plot(costs)
-	plt.show()
+	# nn = NN()
+	# parameters, costs = nn.model_training(train_set.reshape((209, -1)).T / 255,\
+	# 				  train_label.reshape((209, 1)).T, 7, 0.0075, 2000)
+	# plt.plot(costs)
+	# plt.show()
 	# if not os.path.exists('parameters.h5'):
 	# 	with h5py.File('parameters.h5') as f:
 	# 		f['W1'] = parameters['W1']
