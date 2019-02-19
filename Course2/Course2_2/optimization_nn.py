@@ -239,7 +239,7 @@ class DNN_with_mini_batch(DNN):
 		if not activation_list:
 			activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
 
-		parameters = DNN.initialize_parameters(layer_dims)
+		parameters = self.initialize_parameters(layer_dims)
 		costs = []
 
 		if not batch_size:
@@ -259,18 +259,65 @@ class DNN_with_mini_batch(DNN):
 		else:
 			costs = []
 			for i in range(iteration):
-				mini_batches = self.random_mini_batches(X, y, mini_batch_size, seed)
+				mini_batches = self.random_mini_batches(X, y, batch_size, seed)
+				# print(mini_batches)
 				for (mini_batch_X, mini_batch_y) in mini_batches:
+					# print("i = ", i)
+					# print(mini_batch_X)
 					A, caches = self.L_model_forward(mini_batch_X, parameters, activation_list)
-					cost = self.compute_cost(A, y)
-					grads = self.L_model_backward(y, parameters, caches, activation_list)
+					cost = self.compute_cost(A, mini_batch_y)
+					grads = self.L_model_backward(mini_batch_y, parameters, caches, activation_list)
 					parameters = self.update_parameters(parameters, grads, learning_rate)
 
-					if print_cost and 0 == i % 100:
-						print("Cost after iteration of %d : %f" %(i, cost))
+				if print_cost and 0 == i % 100:
+					print("Cost after iteration of %d : %f" %(i, cost))
 
-					costs.append(cost)
+				costs.append(cost)
 			return parameters, costs
 
 
+def plot_decision_boundary(model, X, y):
 
+	x_min, x_max = X[0, :].min() - 1, X[0, :].max() + 1
+	y_min, y_max = X[1, :].min() - 1, X[1, :].max() + 1
+	h = 0.01
+	xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+	Z = model(np.c_[xx.ravel(), yy.ravel()].T)
+	Z = Z.reshape(xx.shape)
+	plt.contourf(xx, yy, Z, cmap = plt.cm.Spectral)
+	plt.ylabel('x2')
+	plt.xlabel('x1')
+	plt.scatter(X[0, :], X[1, :], c = y[0], cmap = plt.cm.Spectral, alpha = 0.8,
+				linewidth = 1, edgecolors = (0, 0, 0))
+	plt.show()
+
+def load_dataset(is_plot = True):
+
+	np.random.seed(3)
+	import sklearn
+	import sklearn.datasets
+	train_X, train_y = sklearn.datasets.make_moons(n_samples = 300, noise = .2)
+	if is_plot:
+		plt.scatter(train_X[:, 0], train_X[:, 1], c = train_y, s = 40, cmap = plt.cm.Spectral)
+	train_X = train_X.T
+	train_y = train_y.reshape((1, train_y.shape[0]))
+
+	return train_X, train_y
+
+
+if __name__ == '__main__':
+
+	train_X, train_y = load_dataset()
+	layer_dims = [train_X.shape[0], 10, 7, 1]
+	activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
+	dnn = DNN_with_mini_batch()
+	parameters, costs = dnn.model_training(train_X, train_y, layer_dims, iteration = 50000,
+					   learning_rate = 0.01, batch_size = 64)
+	plot_decision_boundary(lambda x: dnn.predict(x, parameters, activation_list),
+						   train_X, train_y)
+	plt.plot(costs)
+	plt.show()
+
+	# mini_batches = dnn.random_mini_batches(train_X, train_y)
+	# for (mini_batch_X, mini_batch_y) in mini_batches:
+	# 	print(mini_batch_X, mini_batch_y)
