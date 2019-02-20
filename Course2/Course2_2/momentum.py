@@ -61,6 +61,23 @@ class DNN_with_momentum(DNN_with_mini_batch):
 
 			return parameters, costs
 
+		else:
+			for i in range(iteration):
+				mini_batches = self.random_mini_batches(X, y, batch_size, 0)
+				for (mini_batch_X, mini_batch_y) in mini_batches:
+					A, caches = self.L_model_forward(mini_batch_X, parameters, activation_list)
+					cost = self.compute_cost(A, mini_batch_y)
+					grads = self.L_model_backward(mini_batch_y, parameters, caches, activation_list)
+					parameters, v = self.update_parameters_with_momentum(parameters, 
+						grads, v, beta, learning_rate)
+
+				if print_cost and 0 == i % 100:
+					print("Cost after iteration of %d : %f" %(i, cost))
+
+				costs.append(cost)
+
+			return parameters, costs
+
 
 if __name__ == '__main__':
 	
@@ -69,7 +86,7 @@ if __name__ == '__main__':
 	activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
 	nn = DNN_with_momentum()
 	parameters, costs = nn.model_training(train_X, train_y, layer_dims, activation_list,
-										  10000, 0.1, beta = 0.1)
+										  10000, 0.1, beta = 0.1, batch_size = 64)
 	plot_decision_boundary(lambda x: nn.predict(x, parameters, activation_list),
 						   train_X, train_y)
 	plt.plot(costs)
