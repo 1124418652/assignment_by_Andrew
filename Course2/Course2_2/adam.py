@@ -34,4 +34,4 @@ class DNN_with_adam(DNN_with_mini_batch):
 								   beta1 * v['dW' + str(l + 1)]
 			v['db' + str(l + 1)] = (1 - beta1) * grads['db' + str(l + 1)] +\
 								   beta1 * v['db' + str(l + 1)]
-			
+			v_corrected['dW' + str(l + 1)] = v['dW' + str(l + 1)] / ()
