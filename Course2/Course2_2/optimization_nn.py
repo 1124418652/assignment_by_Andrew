@@ -273,6 +273,7 @@ class DNN_with_mini_batch(DNN):
 					print("Cost after iteration of %d : %f" %(i, cost))
 
 				costs.append(cost)
+
 			return parameters, costs
 
 
