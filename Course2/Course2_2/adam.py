@@ -87,7 +87,7 @@ if __name__ == '__main__':
 	activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
 	nn = DNN_with_adam()
 	parameters, costs = nn.model_training(train_X, train_y, layer_dims, activation_list, 
-		None, 2000, 0.01)
+		None, 10000, 0.0007)
 	plot_decision_boundary(lambda x: nn.predict(x, parameters, activation_list),
 						   train_X, train_y)
 	plt.plot(costs)
