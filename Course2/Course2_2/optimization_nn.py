@@ -312,7 +312,7 @@ if __name__ == '__main__':
 	layer_dims = [train_X.shape[0], 10, 7, 1]
 	activation_list = ['relu'] * (len(layer_dims) - 2) + ['sigmod']
 	dnn = DNN_with_mini_batch()
-	parameters, costs = dnn.model_training(train_X, train_y, layer_dims, iteration = 50000,
+	parameters, costs = dnn.model_training(train_X, train_y, layer_dims, iteration = 20000,
 					   learning_rate = 0.01, batch_size = 64)
 	plot_decision_boundary(lambda x: dnn.predict(x, parameters, activation_list),
 						   train_X, train_y)
