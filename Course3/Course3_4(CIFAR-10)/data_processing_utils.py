@@ -57,7 +57,10 @@ def maybe_download_and_extract():
 	if not os.path.exists(extracted_dir_path):
 		tarfile.open(filepath, 'r:gz').extractall(data_dir)
 
-def load_data_from_binary_file(filepath, img_num = 10000, img_size = 3072, label_size = 1):
+def load_data_from_binary_file(filepath = os.path.join(data_dir, 'cifar-10-batches-bin', 'data_batch_1.bin'), 
+							   img_num = 10000, 
+							   img_size = 3072, 
+							   label_size = 1):
 
 	if not os.path.exists(filepath):
 		raise ValueError("Can't find file %s" % (file))
@@ -73,6 +76,24 @@ def load_data_from_binary_file(filepath, img_num = 10000, img_size = 3072, label
 			labels.append(tmp[0])
 			datasets.append(tmp[1:])
 
-	print(len(datasets))
+	return datasets, labels
 
-load_data_from_binary_file(os.path.join(data_dir, 'cifar-10-batches-bin', 'data_batch_1.bin'))
+def convert_one_hot(y, num_classes):
+
+	y_one_hot = np.zeros((y.shape[-1], num_classes))
+	for i in range(y.shape[-1]):
+		y_one_hot[i][y[i]] = 1 
+	return y_one_hot
+
+def read_cifar10(filename_queue):
+	"""
+	Reads and parses examples from CIFAR10 data files.
+
+	Recommendation: if you want N-way read parallelism call this function
+	N times. This will give you N independent Readers reading different 
+	files & positions within those files, which will give better mixing of 
+	examples.
+
+	Args:
+		filename_queue: 
+	"""
